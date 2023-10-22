@@ -1,4 +1,37 @@
 import { NextResponse } from "next/server";
+const { EmbeddingPredictionClient, MatchServiceClient } = require('@google-cloud/aiplatform');
+
+import Redis from "ioredis";
+
+
+const clientOptions = {
+    apiEndpoint: 'us-central1-aiplatform.googleapis.com',
+};
+const client = new EmbeddingPredictionClient(clientOptions);
+
+async function listEndpoints() {
+    const projectId = "rosy-hangout-402720";
+    const location = "us-central1";
+    // Configure the parent resource
+    const parent = `projects/${projectId}/locations/${location}`;
+    const request = {
+        parent,
+    };
+
+    // Get and print out a list of all the endpoints for this resource
+    const [result] = await client.listEndpoints(request);
+    for (const endpoint of result) {
+        console.log(`\nEndpoint name: ${endpoint.name}`);
+        console.log(`Display name: ${endpoint.displayName}`);
+        if (endpoint.deployedModels[0]) {
+            console.log(
+                `First deployed model: ${endpoint.deployedModels[0].model}`
+            );
+        }
+    }
+}
+listEndpoints();
+const redis = new Redis(process.env.REDIS_URL);
 
 const generateEmbeddings = async (query: string) => {
     return [0, 1, 0];
@@ -27,7 +60,13 @@ export async function GET(request: Request) {
     const embeddings = await generateEmbeddings(query);
 
     // use embeddings to search for similar posts
-    const results = await search(embeddings);
-
+    const result_ids = await search(embeddings);
+    const results = [];
+    for (const data of result_ids) {
+        const result = await redis.hgetall(data.id);
+        if (result) {
+            results.push(result);
+        }
+    }
     return NextResponse.json(results);
 }
