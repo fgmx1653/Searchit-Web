@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input"
 import avatar from "../../img/avatar.svg"
 import logo from "../../img/logo.svg"
 import test from "../../img/test.jpg"
+import Link from "next/link"
 import * as React from "react"
 import tests from "../page"
 import {
@@ -18,6 +19,7 @@ import {
 } from "@/components/ui/card"
 import useSWR from 'swr'
 import { useRouter, useSearchParams } from 'next/navigation';
+import { Checkbox } from "@/components/ui/checkbox"
 
 export default function Search() {
   const testImg = "https://preview.redd.it/rt0nwimuajlb1.jpg?width=216&crop=smart&auto=webp&s=8e4eabfa199489e8efcc68d6483685939494df6d"
@@ -37,34 +39,56 @@ export default function Search() {
     }
 
     if (isLoading || error) {
-        return <>Uh Oh...</>
+        return <>Loading...</>
     }
+
+    var textState = true
+    var imagesState = false
+
     console.log("data: ", data);
   return (
     <main>
         <div>
             <div className="flex w-full justify-center items-center p-10 space-x-5">
-                <Image className="" src={logo.src} width={50} height={50} alt=""></Image>
-                <Input value={tests} onInput={(event) => setTest(event.target.value)} className="h-12 border border-2 w-2/3 bg-white border border-1 border-gray drop-shadow-2xl rounded-full px-5 text-l" type="search" placeholder="Discover something new..." {...test} />
-                <Button onClick={search} className="h-12 rounded-full ml-4 drop-shadow-2xl bg-gradient-to-tr from-red-700 to-red-500 text-lg hover:opacity-80 transition-all duration-300 ease-in-out" type="button">Search</Button>
+                <a href="./"><Image className="" src={logo.src} width={50} height={50} alt=""></Image></a>
+                <Input value={tests} onInput={(event) => setTest(event.target.value)} className="h-12 border border-2 w-2/3 bg-white border border-1 border-gray drop-shadow-md rounded-full px-5 text-l" type="search" placeholder="Discover something new..." {...test} />
+                <Button onClick={search} className="h-12 rounded-full ml-4 drop-shadow-md bg-gradient-to-tr from-red-700 to-red-500 text-lg hover:opacity-80 transition-all duration-300 ease-in-out" type="button">Search</Button>
             </div>
-            <div className="grid grid-cols-3 grid-flow-row gap-x-5">
+            <div className="flex justify-center h-10 gap-x-10">
+                <div className="flex items-center space-x-2 p-5 bg-white border border-1 border-red-500 rounded-full">
+                    <Checkbox checked id="text"/>
+                    <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Text</label>
+                 </div>
+                 <div className="flex items-center space-x-2 p-5 bg-white border border-1 border-red-500 rounded-full">
+                    <Checkbox checked id="images"/>
+                    <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Images</label>
+                 </div>
+            </div>
+            <div className="grid grid-cols-3 grid-flow-row gap-x-5 gap-y-5 p-20">
                 
                   {data?.map((post: any) => { 
-                        return <Card key={post.id} className="max-w-sm">
+                        return <Link passHref key={post.id} href={`https://reddit.com/comments/${post.id}`}>
+                        <Card key={post.id} className="flex-auto max-w-sm h-full shadow-md hover:shadow-xl duration-100 ease-in-out">
                             <CardHeader>
-                                <CardTitle>{post.title.slice(0, 25)}{post.title.length > 25 ? "..." : ""}</CardTitle>
-                                
+                                <CardTitle>{post.title.slice(0, 30)}{post.title.length > 30 ? "..." : ""}</CardTitle>
+                                <CardDescription>r/{post.subreddit}</CardDescription>
                             </CardHeader>
                             <CardContent>
                                 {post.image ? <img
                                     src={post.image}
                                     alt="Card Image"
-                                    className="w-full"
+                                    className="w-full rounded-md"
                                 /> : 
-                                <p>{post.selftext.slice(0, 200)}{post.selftext.length > 200 ? "..." : ""}</p>}
+                                <p>{post.selftext.slice(0, 150)}{post.selftext.length > 150 ? "..." : ""}</p>}
                             </CardContent>
+                            <CardFooter>
+                                <div className="grid grid-rows-auto">
+                                    <CardDescription>u/{post.author}</CardDescription>
+                                    <CardDescription>{post.date}</CardDescription>
+                                </div>
+                            </CardFooter>
                         </Card>
+                        </Link>
                    })}
             </div>
         </div>

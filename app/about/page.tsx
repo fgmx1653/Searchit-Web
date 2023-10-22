@@ -22,7 +22,8 @@ export default function About() {
   return (
     <main>
       <div>
-        <p>This is an about page.</p>
+        <h1>About</h1>
+        <p>A better search engine for Reddit.</p>
       </div>
     </main>
   )

@@ -42,7 +42,7 @@ export default function Home() {
             </div>
             <div className="flex w-full justify-center">
               <Input value={tests} onInput={(event) => setTest(event.target.value)} onKeyDown={(event) => {
-                if(event.keyCode==13) {
+                if(event.code=="13") {
                   search()
                 }
               }} className="h-16 border border-2 w-2/3 bg-white border border-1 border-gray drop-shadow-2xl rounded-full px-5 text-xl" type="search" placeholder="Discover something new..." {...test} />
